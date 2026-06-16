@@ -491,7 +491,7 @@
     &nbsp;·&nbsp;
     <a href="https://github.com/spurthinru-alt/votemap/issues" target="_blank">Report an error</a>
     &nbsp;·&nbsp;
-    Data last reviewed June 2026
+    Data: NCSL (2025), MIT EPI (2024), Census ACS (2024). Last reviewed June 2026
   </p>
 </footer>
 
@@ -499,65 +499,65 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
 const stateData = {
-  "Alabama":       {id:90,access:70,waittime:72,internet:68,language:30,composite:75},
-  "Alaska":        {id:35,access:80,waittime:40,internet:72,language:42,composite:60},
-  "Arizona":       {id:35,access:60,waittime:65,internet:45,language:58,composite:55},
-  "Arkansas":      {id:65,access:72,waittime:68,internet:65,language:25,composite:66},
-  "California":    {id:5, access:30,waittime:55,internet:28,language:62,composite:34},
-  "Colorado":      {id:5, access:12,waittime:20,internet:22,language:38,composite:18},
-  "Connecticut":   {id:5, access:40,waittime:30,internet:18,language:40,composite:25},
-  "Delaware":      {id:5, access:38,waittime:28,internet:20,language:30,composite:22},
-  "Florida":       {id:35,access:55,waittime:70,internet:35,language:55,composite:52},
-  "Georgia":       {id:90,access:65,waittime:78,internet:40,language:42,composite:68},
-  "Hawaii":        {id:5, access:35,waittime:25,internet:30,language:48,composite:27},
-  "Idaho":         {id:35,access:55,waittime:30,internet:48,language:25,composite:40},
-  "Illinois":      {id:5, access:28,waittime:50,internet:25,language:48,composite:29},
-  "Indiana":       {id:90,access:58,waittime:45,internet:38,language:32,composite:56},
-  "Iowa":          {id:35,access:42,waittime:30,internet:40,language:25,composite:38},
-  "Kansas":        {id:90,access:55,waittime:35,internet:42,language:32,composite:54},
-  "Kentucky":      {id:20,access:60,waittime:50,internet:55,language:20,composite:45},
-  "Louisiana":     {id:35,access:68,waittime:70,internet:62,language:28,composite:56},
-  "Maine":         {id:5, access:30,waittime:18,internet:35,language:12,composite:18},
-  "Maryland":      {id:5, access:25,waittime:45,internet:18,language:45,composite:25},
-  "Massachusetts": {id:5, access:22,waittime:35,internet:14,language:48,composite:22},
-  "Michigan":      {id:5, access:20,waittime:42,internet:32,language:28,composite:24},
-  "Minnesota":     {id:5, access:15,waittime:22,internet:28,language:30,composite:19},
-  "Mississippi":   {id:90,access:75,waittime:75,internet:70,language:22,composite:77},
-  "Missouri":      {id:35,access:58,waittime:50,internet:45,language:28,composite:45},
-  "Montana":       {id:20,access:62,waittime:28,internet:55,language:22,composite:40},
-  "Nebraska":      {id:90,access:52,waittime:32,internet:42,language:30,composite:52},
-  "Nevada":        {id:5, access:38,waittime:48,internet:35,language:52,composite:34},
-  "New Hampshire": {id:35,access:35,waittime:20,internet:20,language:15,composite:24},
-  "New Jersey":    {id:5, access:28,waittime:45,internet:16,language:48,composite:26},
-  "New Mexico":    {id:5, access:48,waittime:45,internet:58,language:62,composite:42},
-  "New York":      {id:5, access:30,waittime:58,internet:20,language:52,composite:32},
-  "North Carolina":{id:90,access:55,waittime:55,internet:42,language:38,composite:60},
-  "North Dakota":  {id:65,access:58,waittime:28,internet:48,language:22,composite:50},
-  "Ohio":          {id:65,access:48,waittime:52,internet:32,language:30,composite:48},
-  "Oklahoma":      {id:35,access:65,waittime:45,internet:50,language:30,composite:48},
-  "Oregon":        {id:5, access:10,waittime:15,internet:25,language:38,composite:16},
-  "Pennsylvania":  {id:5, access:38,waittime:55,internet:28,language:38,composite:32},
-  "Rhode Island":  {id:35,access:30,waittime:28,internet:16,language:42,composite:28},
-  "South Carolina":{id:35,access:65,waittime:65,internet:48,language:28,composite:52},
-  "South Dakota":  {id:20,access:60,waittime:30,internet:52,language:25,composite:42},
-  "Tennessee":     {id:90,access:68,waittime:62,internet:50,language:25,composite:67},
-  "Texas":         {id:35,access:62,waittime:72,internet:45,language:60,composite:58},
-  "Utah":          {id:35,access:15,waittime:18,internet:28,language:32,composite:22},
-  "Vermont":       {id:5, access:22,waittime:12,internet:30,language:12,composite:14},
-  "Virginia":      {id:90,access:40,waittime:48,internet:28,language:42,composite:54},
-  "Washington":    {id:5, access:10,waittime:18,internet:22,language:42,composite:17},
-  "West Virginia": {id:20,access:65,waittime:45,internet:68,language:10,composite:44},
-  "Wisconsin":     {id:90,access:38,waittime:40,internet:30,language:25,composite:48},
-  "Wyoming":       {id:90,access:58,waittime:25,internet:50,language:18,composite:50}
+  "Alabama": {id:90,internet:6.1,language:2.5,waittime:26,access:55,composite:43},
+  "Alaska": {id:35,internet:4.5,language:4.1,waittime:33,access:42,composite:31},
+  "Arizona": {id:35,internet:4.2,language:8.5,waittime:11,access:43,composite:31},
+  "Arkansas": {id:65,internet:7.2,language:3.9,waittime:12,access:70,composite:41},
+  "California": {id:5,internet:3.2,language:17.9,waittime:14,access:47,composite:34},
+  "Colorado": {id:5,internet:2.9,language:5.7,waittime:7,access:18,composite:15},
+  "Connecticut": {id:5,internet:4.1,language:9.0,waittime:12,access:34,composite:23},
+  "Delaware": {id:5,internet:4.0,language:5.6,waittime:28,access:34,composite:23},
+  "Florida": {id:35,internet:3.3,language:13.5,waittime:14,access:35,composite:34},
+  "Georgia": {id:90,internet:4.4,language:6.0,waittime:17,access:31,composite:38},
+  "Hawaii": {id:5,internet:4.2,language:10.7,waittime:7,access:78,composite:33},
+  "Idaho": {id:35,internet:3.8,language:3.9,waittime:14,access:43,composite:26},
+  "Illinois": {id:5,internet:4.7,language:9.3,waittime:19,access:44,composite:28},
+  "Indiana": {id:90,internet:5.6,language:4.4,waittime:34,access:56,composite:46},
+  "Iowa": {id:35,internet:5.7,language:4.0,waittime:11,access:24,composite:24},
+  "Kansas": {id:90,internet:5.2,language:5.1,waittime:10,access:44,composite:39},
+  "Kentucky": {id:20,internet:6.5,language:3.4,waittime:24,access:47,composite:28},
+  "Louisiana": {id:35,internet:7.6,language:3.7,waittime:10,access:50,composite:31},
+  "Maine": {id:5,internet:5.4,language:1.7,waittime:12,access:15,composite:14},
+  "Maryland": {id:5,internet:3.6,language:8.3,waittime:17,access:28,composite:22},
+  "Massachusetts": {id:5,internet:3.9,language:10.4,waittime:7,access:31,composite:23},
+  "Michigan": {id:5,internet:5.0,language:4.0,waittime:13,access:14,composite:15},
+  "Minnesota": {id:5,internet:4.3,language:4.9,waittime:10,access:9,composite:14},
+  "Mississippi": {id:90,internet:8.0,language:1.7,waittime:13,access:59,composite:42},
+  "Missouri": {id:35,internet:5.8,language:2.5,waittime:25,access:41,composite:28},
+  "Montana": {id:20,internet:5.7,language:0.8,waittime:12,access:31,composite:19},
+  "Nebraska": {id:90,internet:5.4,language:6.4,waittime:11,access:31,composite:38},
+  "Nevada": {id:5,internet:3.0,language:11.8,waittime:13,access:37,composite:26},
+  "New Hampshire": {id:35,internet:3.0,language:2.4,waittime:18,access:15,composite:19},
+  "New Jersey": {id:5,internet:3.8,language:13.9,waittime:18,access:33,composite:29},
+  "New Mexico": {id:5,internet:6.7,language:9.8,waittime:16,access:54,composite:32},
+  "New York": {id:5,internet:4.8,language:14.4,waittime:21,access:51,composite:35},
+  "North Carolina": {id:90,internet:4.6,language:5.4,waittime:33,access:25,composite:40},
+  "North Dakota": {id:65,internet:5.2,language:2.1,waittime:15,access:44,composite:32},
+  "Ohio": {id:65,internet:5.4,language:3.2,waittime:21,access:38,composite:34},
+  "Oklahoma": {id:35,internet:5.5,language:4.6,waittime:31,access:70,composite:38},
+  "Oregon": {id:5,internet:3.7,language:5.8,waittime:3,access:21,composite:15},
+  "Pennsylvania": {id:5,internet:5.7,language:5.2,waittime:18,access:22,composite:20},
+  "Rhode Island": {id:35,internet:4.6,language:10.6,waittime:5,access:44,composite:32},
+  "South Carolina": {id:35,internet:4.9,language:3.5,waittime:29,access:47,composite:31},
+  "South Dakota": {id:20,internet:5.9,language:2.6,waittime:9,access:42,composite:23},
+  "Tennessee": {id:90,internet:5.5,language:4.0,waittime:22,access:59,composite:44},
+  "Texas": {id:35,internet:4.2,language:13.2,waittime:30,access:61,composite:43},
+  "Utah": {id:35,internet:2.7,language:6.1,waittime:12,access:41,composite:27},
+  "Vermont": {id:5,internet:4.5,language:1.5,waittime:4,access:24,composite:13},
+  "Virginia": {id:90,internet:5.0,language:6.5,waittime:12,access:23,composite:36},
+  "Washington": {id:5,internet:3.0,language:8.1,waittime:9,access:25,composite:19},
+  "West Virginia": {id:20,internet:8.4,language:0.9,waittime:17,access:64,composite:30},
+  "Wisconsin": {id:90,internet:5.0,language:3.4,waittime:16,access:8,composite:31},
+  "Wyoming": {id:90,internet:6.9,language:2.0,waittime:28,access:49,composite:42}
 };
 
 const dimLabels = {
-  composite:"Composite friction score",
-  id:"ID burden score",
-  access:"Polling access burden",
-  waittime:"Wait time burden",
-  internet:"Internet access gap",
-  language:"Language barrier"
+  composite:"Composite friction score (0–100)",
+  id:"ID burden score — based on NCSL voter ID law strictness",
+  access:"Polling access burden — based on MIT EPI 2024 turnout data",
+  waittime:"Wait time burden — based on MIT EPI 2024 wait time data",
+  internet:"Internet access gap — % households without internet (Census ACS 2024)",
+  language:"Language barrier — % residents speaking English less than 'very well' (Census ACS 2024)"
 };
 
 const fips = {
@@ -644,8 +644,8 @@ function drawMap() {
       document.getElementById('tt-id').textContent = sd.id;
       document.getElementById('tt-access').textContent = sd.access;
       document.getElementById('tt-wait').textContent = sd.waittime;
-      document.getElementById('tt-internet').textContent = sd.internet;
-      document.getElementById('tt-lang').textContent = sd.language;
+      document.getElementById('tt-internet').textContent = sd.internet + '%';
+      document.getElementById('tt-lang').textContent = sd.language + '%';
 
       const pad = 14, tw = 230, th = 180;
       let x = event.clientX + pad;
