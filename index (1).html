@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Hard Is It to Vote? — Voting Friction Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root {
+  --black:    #0D0D0D;
+  --paper:    #F0E6D3;
+  --amber:    #F5A623;
+  --red:      #C0392B;
+  --green:    #27AE60;
+  --mid:      #E67E22;
+  --dim:      rgba(240,230,211,0.18);
+  --panel-bg: #161616;
+  --mono:     'JetBrains Mono', monospace;
+  --serif:    'Source Serif 4', Georgia, serif;
+  --display:  'Bebas Neue', Impact, sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--paper);font-family:var(--serif);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(240,230,211,0.02) 40px,rgba(240,230,211,0.02) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(240,230,211,0.015) 40px,rgba(240,230,211,0.015) 41px);pointer-events:none;z-index:0}
+
+/* HEADER */
+header{position:relative;z-index:10;padding:2rem 2rem 0;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;animation:fadeDown 0.8s ease both}
+.site-title{font-family:var(--display);font-size:clamp(2.8rem,6vw,5rem);line-height:0.9;letter-spacing:0.02em;color:var(--paper)}
+.site-title span{color:var(--amber)}
+.site-sub{font-family:var(--mono);font-size:0.7rem;color:rgba(240,230,211,0.5);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.4rem}
+.header-right{text-align:right;font-family:var(--mono);font-size:0.68rem;color:rgba(240,230,211,0.4);line-height:1.8}
+.header-right a{color:rgba(240,230,211,0.3);text-decoration:none}
+.header-right a:hover{color:var(--amber)}
+
+/* REGISTER BANNER */
+.register-banner{position:relative;z-index:10;margin:1.5rem 2rem 0;background:linear-gradient(135deg,#1a2a1a,#0f1f0f);border:1px solid var(--green);border-radius:3px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;animation:fadeDown 0.8s 0.1s ease both}
+.banner-text{font-family:var(--mono);font-size:0.78rem;color:rgba(240,230,211,0.8);line-height:1.6}
+.banner-text strong{color:var(--green);display:block;font-size:0.85rem;margin-bottom:0.2rem}
+.check-btn{font-family:var(--mono);font-size:0.75rem;font-weight:600;padding:8px 18px;background:var(--green);color:white;border:none;border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block;white-space:nowrap;transition:opacity 0.15s}
+.check-btn:hover{opacity:0.85}
+
+/* INTRO */
+.intro{position:relative;z-index:10;max-width:680px;margin:1.5rem 2rem 0;animation:fadeDown 0.8s 0.15s ease both}
+.intro p{font-size:clamp(1rem,2vw,1.15rem);font-weight:300;line-height:1.65;color:rgba(240,230,211,0.78)}
+.intro p strong{color:var(--amber);font-weight:600;font-style:italic}
+
+/* CONTROLS */
+.controls{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:0.5rem;padding:1.5rem 2rem 0;animation:fadeDown 0.8s 0.25s ease both}
+.controls-label{font-family:var(--mono);font-size:0.65rem;color:rgba(240,230,211,0.35);text-transform:uppercase;letter-spacing:0.12em;align-self:center;margin-right:0.25rem}
+.dim-btn{font-family:var(--mono);font-size:0.7rem;letter-spacing:0.05em;padding:6px 14px;border-radius:2px;border:1px solid rgba(240,230,211,0.2);background:transparent;color:rgba(240,230,211,0.5);cursor:pointer;transition:all 0.18s;white-space:nowrap}
+.dim-btn:hover{border-color:var(--amber);color:var(--amber)}
+.dim-btn.active{background:var(--amber);color:var(--black);border-color:var(--amber);font-weight:600}
+
+/* MAP */
+.map-wrap{position:relative;z-index:10;padding:1rem 2rem 0;animation:fadeIn 1.2s 0.4s ease both}
+#map-container svg{display:block;width:100%}
+path.state{stroke:var(--black);stroke-width:0.8;cursor:pointer;transition:opacity 0.15s,stroke-width 0.15s;opacity:0}
+path.state.loaded{opacity:1}
+path.state:hover{stroke:var(--paper);stroke-width:1.5;opacity:0.85}
+path.state.selected{stroke:var(--paper);stroke-width:2}
+
+/* LEGEND */
+.legend{position:relative;z-index:10;display:flex;align-items:center;gap:1.5rem;padding:0.75rem 2rem 0;flex-wrap:wrap;animation:fadeIn 1s 0.6s ease both}
+.legend-item{display:flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.68rem;color:rgba(240,230,211,0.6)}
+.legend-swatch{width:14px;height:14px;border-radius:2px;flex-shrink:0}
+.legend-note{font-family:var(--mono);font-size:0.6rem;color:rgba(240,230,211,0.25);margin-left:auto}
+.click-prompt{position:relative;z-index:10;text-align:center;font-family:var(--mono);font-size:0.7rem;color:rgba(240,230,211,0.3);letter-spacing:0.1em;padding:0.5rem 2rem;animation:pulse 3s 2s infinite}
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:0.7}}
+
+/* STATE PANEL */
+#state-panel{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--panel-bg);border-top:2px solid var(--amber);transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.16,1,0.3,1);max-height:90vh;overflow-y:auto}
+#state-panel.open{transform:translateY(0)}
+.panel-inner{padding:1.5rem 2rem 2rem;max-width:1100px;margin:0 auto}
+.panel-close{position:absolute;top:1rem;right:1.5rem;background:none;border:1px solid rgba(240,230,211,0.2);color:var(--paper);font-family:var(--mono);font-size:0.75rem;padding:4px 10px;cursor:pointer;border-radius:2px;transition:all 0.15s}
+.panel-close:hover{border-color:var(--amber);color:var(--amber)}
+.panel-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}
+.panel-state-name{font-family:var(--display);font-size:clamp(2.5rem,6vw,4rem);line-height:0.9;color:var(--paper)}
+.panel-verdict{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:2px;display:inline-block;margin-top:0.5rem;font-weight:600}
+.verdict-hard{background:var(--red);color:white}
+.verdict-mid{background:var(--mid);color:white}
+.verdict-easy{background:var(--green);color:white}
+.panel-share-btn{font-family:var(--mono);font-size:0.7rem;padding:6px 14px;border:1px solid rgba(240,230,211,0.25);background:transparent;color:rgba(240,230,211,0.6);cursor:pointer;border-radius:2px;transition:all 0.15s;white-space:nowrap}
+.panel-share-btn:hover{border-color:var(--amber);color:var(--amber)}
+.panel-summary{font-size:1rem;font-weight:300;line-height:1.7;color:rgba(240,230,211,0.82);margin-bottom:1.25rem;max-width:640px}
+
+/* PANEL TABS */
+.panel-tabs{display:flex;gap:0;border-bottom:1px solid rgba(240,230,211,0.1);margin-bottom:1.25rem;flex-wrap:wrap}
+.ptab{font-family:var(--mono);font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;padding:8px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(240,230,211,0.4);cursor:pointer;transition:all 0.15s;margin-bottom:-1px}
+.ptab:hover{color:rgba(240,230,211,0.7)}
+.ptab.active{color:var(--amber);border-bottom-color:var(--amber)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* FACTORS GRID */
+.factors-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1px;background:rgba(240,230,211,0.08);border:1px solid rgba(240,230,211,0.08);margin-bottom:1rem}
+.factor{background:var(--panel-bg);padding:1rem 1.25rem}
+.factor-name{font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(240,230,211,0.35);margin-bottom:0.4rem}
+.factor-rating{font-family:var(--display);font-size:1.3rem;margin-bottom:0.25rem}
+.rating-high{color:var(--red)}
+.rating-mid{color:var(--mid)}
+.rating-low{color:var(--green)}
+.factor-desc{font-size:0.78rem;color:rgba(240,230,211,0.55);line-height:1.5}
+
+/* ACTION TAB */
+.action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:rgba(240,230,211,0.08);border:1px solid rgba(240,230,211,0.08);margin-bottom:1rem}
+.action-item{background:var(--panel-bg);padding:1.1rem 1.25rem}
+.action-label{font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:rgba(240,230,211,0.3);margin-bottom:0.35rem}
+.action-status{font-family:var(--display);font-size:1.1rem;margin-bottom:0.3rem}
+.action-yes{color:var(--green)}
+.action-no{color:var(--red)}
+.action-maybe{color:var(--mid)}
+.action-desc{font-size:0.78rem;color:rgba(240,230,211,0.55);line-height:1.5;margin-bottom:0.6rem}
+.action-link{display:inline-block;font-family:var(--mono);font-size:0.68rem;color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(245,166,35,0.3);transition:border-color 0.15s}
+.action-link:hover{border-color:var(--amber)}
+
+/* DOCS TAB */
+.docs-section{margin-bottom:1.25rem}
+.docs-section h4{font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--amber);margin-bottom:0.75rem}
+.doc-item{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem;padding:0.75rem 1rem;background:rgba(240,230,211,0.04);border-radius:2px}
+.doc-icon{font-size:1.1rem;flex-shrink:0;margin-top:0.1rem}
+.doc-text{font-size:0.82rem;color:rgba(240,230,211,0.65);line-height:1.55}
+.doc-text strong{color:var(--paper);display:block;margin-bottom:0.2rem;font-weight:600}
+.doc-text a{color:var(--amber);text-decoration:none}
+.doc-text a:hover{text-decoration:underline}
+
+/* ORGS TAB */
+.orgs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1rem}
+.org-card{background:rgba(240,230,211,0.04);border:1px solid rgba(240,230,211,0.08);border-radius:2px;padding:1rem 1.25rem}
+.org-name{font-family:var(--display);font-size:1.1rem;color:var(--paper);margin-bottom:0.3rem}
+.org-tag{font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber);margin-bottom:0.5rem}
+.org-desc{font-size:0.8rem;color:rgba(240,230,211,0.58);line-height:1.55;margin-bottom:0.65rem}
+.org-link{font-family:var(--mono);font-size:0.68rem;color:var(--amber);text-decoration:none;border-bottom:1px solid rgba(245,166,35,0.3)}
+.org-link:hover{border-color:var(--amber)}
+
+/* PANEL SOURCES */
+.panel-sources{font-family:var(--mono);font-size:0.6rem;color:rgba(240,230,211,0.22);line-height:1.8;border-top:1px solid rgba(240,230,211,0.08);padding-top:1rem;margin-top:0.5rem}
+.panel-sources a{color:rgba(240,230,211,0.38);text-decoration:none}
+.panel-sources a:hover{color:var(--amber)}
+
+/* ABOUT STRIP */
+.about-strip{position:relative;z-index:10;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:rgba(240,230,211,0.06);border-top:1px solid rgba(240,230,211,0.08);margin-top:2rem}
+.about-cell{background:var(--black);padding:1.5rem 2rem}
+.about-cell h3{font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--amber);margin-bottom:0.75rem}
+.about-cell p{font-size:0.88rem;font-weight:300;color:rgba(240,230,211,0.6);line-height:1.7}
+
+/* FOOTER */
+footer{position:relative;z-index:10;padding:1.5rem 2rem;font-family:var(--mono);font-size:0.62rem;color:rgba(240,230,211,0.2);border-top:1px solid rgba(240,230,211,0.06);display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+footer a{color:rgba(240,230,211,0.3);text-decoration:none}
+footer a:hover{color:var(--amber)}
+
+/* TOAST */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--amber);color:var(--black);font-family:var(--mono);font-size:0.75rem;font-weight:600;padding:8px 20px;border-radius:2px;opacity:0;transition:all 0.3s;z-index:200;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+@media(max-width:600px){
+  header,.intro,.controls,.map-wrap,.legend{padding-left:1rem;padding-right:1rem}
+  .register-banner{margin-left:1rem;margin-right:1rem}
+  .panel-inner{padding:1.25rem 1rem 1.5rem}
+  .about-cell{padding:1.25rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="site-title">HOW HARD<br>IS IT TO <span>VOTE?</span></div>
+    <div class="site-sub">Voting Friction Index &nbsp;·&nbsp; All 50 States &nbsp;·&nbsp; 2024 Data</div>
+  </div>
+  <div class="header-right">
+    Data: NCSL · MIT Election Lab · US Census<br>
+    Built 2026 &nbsp;<a href="https://github.com/spurthinru-alt/votemap" target="_blank">↗ GitHub</a>
+  </div>
+</header>
+
+<div class="register-banner">
+  <div class="banner-text">
+    <strong>✓ Already registered? Make sure you're still on the rolls.</strong>
+    Voter roll purges are increasing. Take 30 seconds to confirm your registration status before the next election.
+  </div>
+  <a class="check-btn" href="https://www.vote.org/am-i-registered-to-vote/" target="_blank">Check My Registration →</a>
+</div>
+
+<div class="intro">
+  <p>After the <strong>SAVE Act</strong> passed the House in 2025 — requiring a passport or birth certificate just to register to vote — I wanted to see what the full picture of voting access already looks like across every state. Click your state to find out what's going on there, and what you can do about it.</p>
+</div>
+
+<div class="controls">
+  <span class="controls-label">Show me:</span>
+  <button class="dim-btn active" data-dim="composite">Overall difficulty</button>
+  <button class="dim-btn" data-dim="id">ID requirements</button>
+  <button class="dim-btn" data-dim="waittime">Wait times</button>
+  <button class="dim-btn" data-dim="internet">Internet access</button>
+  <button class="dim-btn" data-dim="language">Language barriers</button>
+  <button class="dim-btn" data-dim="access">Polling availability</button>
+</div>
+
+<div class="map-wrap">
+  <div id="map-container"></div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#C0392B"></div>Harder to vote</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#E67E22"></div>Some barriers</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#F5A623"></div>Mixed</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#27AE60"></div>Easier to vote</div>
+  <div class="legend-note">Click any state for details →</div>
+</div>
+
+<div class="click-prompt">↑ CLICK ANY STATE TO SEE WHAT'S GOING ON THERE</div>
+
+<!-- STATE PANEL -->
+<div id="state-panel">
+  <div class="panel-inner">
+    <button class="panel-close" onclick="closePanel()">✕ close</button>
+    <div class="panel-top">
+      <div>
+        <div class="panel-state-name" id="p-name"></div>
+        <div class="panel-verdict" id="p-verdict"></div>
+      </div>
+      <button class="panel-share-btn" onclick="shareState()">↗ Share this state</button>
+    </div>
+    <p class="panel-summary" id="p-summary"></p>
+
+    <div class="panel-tabs">
+      <button class="ptab active" onclick="switchTab('barriers', this)">What the barriers are</button>
+      <button class="ptab" onclick="switchTab('actions', this)">What you can do</button>
+      <button class="ptab" onclick="switchTab('docs', this)">Document checklist</button>
+      <button class="ptab" onclick="switchTab('orgs', this)">Organizations that help</button>
+    </div>
+
+    <div class="tab-content active" id="tab-barriers">
+      <div class="factors-grid" id="p-factors"></div>
+    </div>
+
+    <div class="tab-content" id="tab-actions">
+      <div class="action-grid" id="p-actions"></div>
+    </div>
+
+    <div class="tab-content" id="tab-docs">
+      <div id="p-docs"></div>
+    </div>
+
+    <div class="tab-content" id="tab-orgs">
+      <div class="orgs-grid">
+        <div class="org-card">
+          <div class="org-name">VoteRiders</div>
+          <div class="org-tag">Free ID & Document Help</div>
+          <div class="org-desc">Helps people get the ID they need to vote — for free. They'll walk you through getting a birth certificate, state ID, or whatever your state requires.</div>
+          <a class="org-link" href="https://www.voteriders.org" target="_blank">voteriders.org ↗</a>
+        </div>
+        <div class="org-card">
+          <div class="org-name">Vote.org</div>
+          <div class="org-tag">Registration & Deadlines</div>
+          <div class="org-desc">Check your registration, find your polling place, request a mail ballot, and see your state's exact deadlines. The fastest way to get ready to vote.</div>
+          <a class="org-link" href="https://www.vote.org" target="_blank">vote.org ↗</a>
+        </div>
+        <div class="org-card">
+          <div class="org-name">Brennan Center</div>
+          <div class="org-tag">Legal Research & Advocacy</div>
+          <div class="org-desc">Tracks voting laws, challenges illegal restrictions in court, and publishes the most detailed research on voter suppression in the country.</div>
+          <a class="org-link" href="https://www.brennancenter.org" target="_blank">brennancenter.org ↗</a>
+        </div>
+        <div class="org-card">
+          <div class="org-name">NAACP Legal Defense Fund</div>
+          <div class="org-tag">Civil Rights Legal Action</div>
+          <div class="org-desc">Fights voting rights cases in court, particularly those that disproportionately affect Black voters and communities of color.</div>
+          <a class="org-link" href="https://www.naacpldf.org" target="_blank">naacpldf.org ↗</a>
+        </div>
+        <div class="org-card">
+          <div class="org-name">League of Women Voters</div>
+          <div class="org-tag">Voter Education & Registration</div>
+          <div class="org-desc">Runs voter registration drives, publishes nonpartisan voting guides, and advocates against laws that make it harder to vote. Active in every state.</div>
+          <a class="org-link" href="https://www.lwv.org" target="_blank">lwv.org ↗</a>
+        </div>
+        <div class="org-card">
+          <div class="org-name">Campaign Legal Center</div>
+          <div class="org-tag">Election Law & Policy</div>
+          <div class="org-desc">Challenges voting restrictions through the courts and advocates for policies that make elections fairer and more accessible for everyone.</div>
+          <a class="org-link" href="https://campaignlegal.org" target="_blank">campaignlegal.org ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-sources">
+      Sources: <a href="https://www.ncsl.org/elections-and-campaigns/voter-id" target="_blank">NCSL Voter ID Laws</a> ·
+      <a href="https://elections.mit.edu" target="_blank">MIT Elections Performance Index 2024</a> ·
+      <a href="https://data.census.gov" target="_blank">US Census ACS 2024</a> ·
+      <a href="https://www.vote.org" target="_blank">Vote.org</a>
+    </div>
+  </div>
+</div>
+
+<div id="toast">Link copied to clipboard</div>
+
+<!-- ABOUT -->
+<div class="about-strip">
+  <div class="about-cell">
+    <h3>What this measures</h3>
+    <p>Five real barriers: how strict the ID law is, how long people wait at polls, how many households lack internet for online registration, language access, and how many polling places are available relative to the population.</p>
+  </div>
+  <div class="about-cell">
+    <h3>Where the data comes from</h3>
+    <p>ID laws from the National Conference of State Legislatures (2025). Wait times and polling access from MIT's Elections Performance Index (2024 election). Internet and language data from the US Census Bureau's American Community Survey (2024).</p>
+  </div>
+  <div class="about-cell">
+    <h3>Why this exists</h3>
+    <p>The SAVE Act would require a passport or birth certificate to register to vote. Over 21 million Americans don't have easy access to those documents. This map shows the barriers that already exist — before that law even takes effect.</p>
+  </div>
+</div>
+
+<footer>
+  <span>Voting Friction Index · Built 2026 · Data reviewed June 2026</span>
+  <span>
+    <a href="https://github.com/spurthinru-alt/votemap" target="_blank">GitHub</a> ·
+    <a href="https://github.com/spurthinru-alt/votemap/issues" target="_blank">Report an error</a>
+  </span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+// ── STATE DATA ──
+const stateData = {
+  "Alabama":       {id:90,internet:6.1,language:2.5,waittime:26,access:55,composite:43},
+  "Alaska":        {id:35,internet:4.5,language:4.1,waittime:33,access:42,composite:31},
+  "Arizona":       {id:35,internet:4.2,language:8.5,waittime:11,access:43,composite:31},
+  "Arkansas":      {id:65,internet:7.2,language:3.9,waittime:12,access:70,composite:41},
+  "California":    {id:5, internet:3.2,language:17.9,waittime:14,access:47,composite:34},
+  "Colorado":      {id:5, internet:2.9,language:5.7,waittime:7, access:18,composite:15},
+  "Connecticut":   {id:5, internet:4.1,language:9.0,waittime:12,access:34,composite:23},
+  "Delaware":      {id:5, internet:4.0,language:5.6,waittime:28,access:34,composite:23},
+  "Florida":       {id:35,internet:3.3,language:13.5,waittime:14,access:35,composite:34},
+  "Georgia":       {id:90,internet:4.4,language:6.0,waittime:17,access:31,composite:38},
+  "Hawaii":        {id:5, internet:4.2,language:10.7,waittime:7, access:78,composite:33},
+  "Idaho":         {id:35,internet:3.8,language:3.9,waittime:14,access:43,composite:26},
+  "Illinois":      {id:5, internet:4.7,language:9.3,waittime:19,access:44,composite:28},
+  "Indiana":       {id:90,internet:5.6,language:4.4,waittime:34,access:56,composite:46},
+  "Iowa":          {id:35,internet:5.7,language:4.0,waittime:11,access:24,composite:24},
+  "Kansas":        {id:90,internet:5.2,language:5.1,waittime:10,access:44,composite:39},
+  "Kentucky":      {id:20,internet:6.5,language:3.4,waittime:24,access:47,composite:28},
+  "Louisiana":     {id:35,internet:7.6,language:3.7,waittime:10,access:50,composite:31},
+  "Maine":         {id:5, internet:5.4,language:1.7,waittime:12,access:15,composite:14},
+  "Maryland":      {id:5, internet:3.6,language:8.3,waittime:17,access:28,composite:22},
+  "Massachusetts": {id:5, internet:3.9,language:10.4,waittime:7, access:31,composite:23},
+  "Michigan":      {id:5, internet:5.0,language:4.0,waittime:13,access:14,composite:15},
+  "Minnesota":     {id:5, internet:4.3,language:4.9,waittime:10,access:9, composite:14},
+  "Mississippi":   {id:90,internet:8.0,language:1.7,waittime:13,access:59,composite:42},
+  "Missouri":      {id:35,internet:5.8,language:2.5,waittime:25,access:41,composite:28},
+  "Montana":       {id:20,internet:5.7,language:0.8,waittime:12,access:31,composite:19},
+  "Nebraska":      {id:90,internet:5.4,language:6.4,waittime:11,access:31,composite:38},
+  "Nevada":        {id:5, internet:3.0,language:11.8,waittime:13,access:37,composite:26},
+  "New Hampshire": {id:35,internet:3.0,language:2.4,waittime:18,access:15,composite:19},
+  "New Jersey":    {id:5, internet:3.8,language:13.9,waittime:18,access:33,composite:29},
+  "New Mexico":    {id:5, internet:6.7,language:9.8,waittime:16,access:54,composite:32},
+  "New York":      {id:5, internet:4.8,language:14.4,waittime:21,access:51,composite:35},
+  "North Carolina":{id:90,internet:4.6,language:5.4,waittime:33,access:25,composite:40},
+  "North Dakota":  {id:65,internet:5.2,language:2.1,waittime:15,access:44,composite:32},
+  "Ohio":          {id:65,internet:5.4,language:3.2,waittime:21,access:38,composite:34},
+  "Oklahoma":      {id:35,internet:5.5,language:4.6,waittime:31,access:70,composite:38},
+  "Oregon":        {id:5, internet:3.7,language:5.8,waittime:3, access:21,composite:15},
+  "Pennsylvania":  {id:5, internet:5.7,language:5.2,waittime:18,access:22,composite:20},
+  "Rhode Island":  {id:35,internet:4.6,language:10.6,waittime:5, access:44,composite:32},
+  "South Carolina":{id:35,internet:4.9,language:3.5,waittime:29,access:47,composite:31},
+  "South Dakota":  {id:20,internet:5.9,language:2.6,waittime:9, access:42,composite:23},
+  "Tennessee":     {id:90,internet:5.5,language:4.0,waittime:22,access:59,composite:44},
+  "Texas":         {id:35,internet:4.2,language:13.2,waittime:30,access:61,composite:43},
+  "Utah":          {id:35,internet:2.7,language:6.1,waittime:12,access:41,composite:27},
+  "Vermont":       {id:5, internet:4.5,language:1.5,waittime:4, access:24,composite:13},
+  "Virginia":      {id:90,internet:5.0,language:6.5,waittime:12,access:23,composite:36},
+  "Washington":    {id:5, internet:3.0,language:8.1,waittime:9, access:25,composite:19},
+  "West Virginia": {id:20,internet:8.4,language:0.9,waittime:17,access:64,composite:30},
+  "Wisconsin":     {id:90,internet:5.0,language:3.4,waittime:16,access:8, composite:31},
+  "Wyoming":       {id:90,internet:6.9,language:2.0,waittime:28,access:49,composite:42}
+};
+
+// ── STATE ACTION DATA ──
+const stateActions = {
+  "Alabama":       {sdr:false, online:true,  mail:false, regUrl:"https://www.sos.alabama.gov/alabama-votes/voter/register-to-vote", deadline:"15 days before election"},
+  "Alaska":        {sdr:true,  online:true,  mail:true,  regUrl:"https://voterregistration.alaska.gov", deadline:"Same day (in person)"},
+  "Arizona":       {sdr:false, online:true,  mail:true,  regUrl:"https://servicearizona.com/voterRegistration", deadline:"29 days before election"},
+  "Arkansas":      {sdr:false, online:false, mail:false, regUrl:"https://www.sos.arkansas.gov/elections/voter-information/", deadline:"30 days before election"},
+  "California":    {sdr:true,  online:true,  mail:true,  regUrl:"https://registertovote.ca.gov", deadline:"Same day"},
+  "Colorado":      {sdr:true,  online:true,  mail:true,  regUrl:"https://www.sos.state.co.us/voter/pages/pub/home.xhtml", deadline:"Same day"},
+  "Connecticut":   {sdr:true,  online:true,  mail:true,  regUrl:"https://voterregistration.ct.gov/OLVR/welcome.do", deadline:"Same day (in person)"},
+  "Delaware":      {sdr:false, online:true,  mail:true,  regUrl:"https://ivote.de.gov/VoterView/registrants/newregistrant", deadline:"24 days before election"},
+  "Florida":       {sdr:false, online:true,  mail:false, regUrl:"https://registertovoteflorida.gov", deadline:"29 days before election"},
+  "Georgia":       {sdr:false, online:true,  mail:false, regUrl:"https://registertovote.sos.ga.gov", deadline:"28 days before election"},
+  "Hawaii":        {sdr:true,  online:true,  mail:true,  regUrl:"https://olvr.hawaii.gov", deadline:"Same day"},
+  "Idaho":         {sdr:true,  online:false, mail:false, regUrl:"https://idahovotes.gov/register-to-vote/", deadline:"Same day (in person)"},
+  "Illinois":      {sdr:true,  online:true,  mail:true,  regUrl:"https://www.elections.il.gov/VoterRegistration/", deadline:"Same day"},
+  "Indiana":       {sdr:false, online:true,  mail:false, regUrl:"https://indianavoters.in.gov", deadline:"29 days before election"},
+  "Iowa":          {sdr:true,  online:true,  mail:true,  regUrl:"https://sos.iowa.gov/elections/voterinformation/voterregistration.html", deadline:"Same day (in person)"},
+  "Kansas":        {sdr:false, online:true,  mail:false, regUrl:"https://www.kssos.org/elections/elections_registration.html", deadline:"21 days before election"},
+  "Kentucky":      {sdr:false, online:true,  mail:false, regUrl:"https://vrsws.sos.ky.gov/ovrweb/", deadline:"29 days before election"},
+  "Louisiana":     {sdr:false, online:true,  mail:false, regUrl:"https://voterportal.sos.la.gov", deadline:"30 days before election"},
+  "Maine":         {sdr:true,  online:true,  mail:true,  regUrl:"https://www.maine.gov/sos/cec/elec/voter-info/votreg.html", deadline:"Same day"},
+  "Maryland":      {sdr:true,  online:true,  mail:true,  regUrl:"https://voterservices.elections.maryland.gov/OnlineVoterRegistration/InstructionsStep1", deadline:"Same day"},
+  "Massachusetts": {sdr:true,  online:true,  mail:true,  regUrl:"https://www.sec.state.ma.us/ovr/", deadline:"Same day"},
+  "Michigan":      {sdr:true,  online:true,  mail:true,  regUrl:"https://mvic.sos.state.mi.us/RegisterVoter", deadline:"Same day"},
+  "Minnesota":     {sdr:true,  online:true,  mail:true,  regUrl:"https://mnvotes.sos.state.mn.us/VoterRegistration/VoterRegistrationMain.aspx", deadline:"Same day"},
+  "Mississippi":   {sdr:false, online:false, mail:false, regUrl:"https://www.sos.ms.gov/elections-voting/voter-registration-information", deadline:"30 days before election"},
+  "Missouri":      {sdr:false, online:true,  mail:false, regUrl:"https://www.sos.mo.gov/elections/goVoteMissouri/register.aspx", deadline:"28 days before election"},
+  "Montana":       {sdr:true,  online:true,  mail:true,  regUrl:"https://app.mt.gov/voterinfo/", deadline:"Same day"},
+  "Nebraska":      {sdr:false, online:true,  mail:false, regUrl:"https://www.sos.nebraska.gov/elections/voter-information", deadline:"15 days before election"},
+  "Nevada":        {sdr:true,  online:true,  mail:true,  regUrl:"https://www.nvsos.gov/sosvoterservices/Registration/step1.aspx", deadline:"Same day"},
+  "New Hampshire": {sdr:true,  online:false, mail:false, regUrl:"https://www.sos.nh.gov/elections/voters/register-vote", deadline:"Same day (in person)"},
+  "New Jersey":    {sdr:false, online:true,  mail:true,  regUrl:"https://voter.svrs.nj.gov/register", deadline:"21 days before election"},
+  "New Mexico":    {sdr:true,  online:true,  mail:true,  regUrl:"https://voterview.sos.nm.gov/Voter/VoterHome", deadline:"Same day"},
+  "New York":      {sdr:false, online:true,  mail:true,  regUrl:"https://www.elections.ny.gov/VoterRegistration.html", deadline:"25 days before election"},
+  "North Carolina":{sdr:true,  online:true,  mail:true,  regUrl:"https://www.ncsbe.gov/registering/how-register", deadline:"Same day (early voting only)"},
+  "North Dakota":  {sdr:false, online:false, mail:false, regUrl:"https://vip.sos.nd.gov/PortalListDetails.aspx?ptlhPKID=51&ptlPKID=7", deadline:"No registration required"},
+  "Ohio":          {sdr:false, online:true,  mail:true,  regUrl:"https://www.ohiosos.gov/elections/voters/register/", deadline:"30 days before election"},
+  "Oklahoma":      {sdr:false, online:true,  mail:false, regUrl:"https://www.ok.gov/elections/Voter_Info/Register_to_Vote/index.html", deadline:"25 days before election"},
+  "Oregon":        {sdr:true,  online:true,  mail:true,  regUrl:"https://sos.oregon.gov/voting/Pages/registration.aspx", deadline:"Same day"},
+  "Pennsylvania":  {sdr:false, online:true,  mail:true,  regUrl:"https://www.pavoterservices.pa.gov/pages/VoterRegistrationApplication.aspx", deadline:"15 days before election"},
+  "Rhode Island":  {sdr:true,  online:true,  mail:true,  regUrl:"https://vote.sos.ri.gov/", deadline:"Same day"},
+  "South Carolina":{sdr:false, online:true,  mail:false, regUrl:"https://info.scvotes.sc.gov/eng/ovr/start.aspx", deadline:"30 days before election"},
+  "South Dakota":  {sdr:false, online:false, mail:false, regUrl:"https://sdsos.gov/elections-voting/voting/register-to-vote/default.aspx", deadline:"15 days before election"},
+  "Tennessee":     {sdr:false, online:true,  mail:false, regUrl:"https://ovr.govote.tn.gov", deadline:"30 days before election"},
+  "Texas":         {sdr:false, online:false, mail:false, regUrl:"https://www.sos.state.tx.us/elections/voter/reqvr.shtml", deadline:"30 days before election"},
+  "Utah":          {sdr:true,  online:true,  mail:true,  regUrl:"https://secure.utah.gov/voterreg/index.html", deadline:"Same day"},
+  "Vermont":       {sdr:true,  online:true,  mail:true,  regUrl:"https://mvp.vermont.gov", deadline:"Same day"},
+  "Virginia":      {sdr:false, online:true,  mail:true,  regUrl:"https://www.elections.virginia.gov/registration/how-to-register/", deadline:"22 days before election"},
+  "Washington":    {sdr:true,  online:true,  mail:true,  regUrl:"https://voter.votewa.gov/WhereToVote.aspx", deadline:"Same day"},
+  "West Virginia": {sdr:false, online:true,  mail:false, regUrl:"https://ovr.sos.wv.gov/Register/Landing", deadline:"21 days before election"},
+  "Wisconsin":     {sdr:true,  online:true,  mail:true,  regUrl:"https://myvote.wi.gov/en-us/Register-To-Vote", deadline:"Same day"},
+  "Wyoming":       {sdr:true,  online:false, mail:false, regUrl:"https://sos.wyo.gov/Elections/Docs/WYVoterRegForm.pdf", deadline:"Same day (in person)"}
+};
+
+const fips = {
+  1:"Alabama",2:"Alaska",4:"Arizona",5:"Arkansas",6:"California",8:"Colorado",
+  9:"Connecticut",10:"Delaware",12:"Florida",13:"Georgia",15:"Hawaii",16:"Idaho",
+  17:"Illinois",18:"Indiana",19:"Iowa",20:"Kansas",21:"Kentucky",22:"Louisiana",
+  23:"Maine",24:"Maryland",25:"Massachusetts",26:"Michigan",27:"Minnesota",
+  28:"Mississippi",29:"Missouri",30:"Montana",31:"Nebraska",32:"Nevada",
+  33:"New Hampshire",34:"New Jersey",35:"New Mexico",36:"New York",
+  37:"North Carolina",38:"North Dakota",39:"Ohio",40:"Oklahoma",41:"Oregon",
+  42:"Pennsylvania",44:"Rhode Island",45:"South Carolina",46:"South Dakota",
+  47:"Tennessee",48:"Texas",49:"Utah",50:"Vermont",51:"Virginia",
+  53:"Washington",54:"West Virginia",55:"Wisconsin",56:"Wyoming"
+};
+
+let currentDim = "composite";
+let usData = null;
+let currentState = null;
+
+function getColor(val, dim) {
+  if (dim==='id') { if(val>=80)return"#C0392B";if(val>=60)return"#E67E22";if(val>=30)return"#F5A623";return"#27AE60"; }
+  if (dim==='internet'||dim==='language') { if(val>=10)return"#C0392B";if(val>=6)return"#E67E22";if(val>=3)return"#F5A623";return"#27AE60"; }
+  if (dim==='waittime') { if(val>=30)return"#C0392B";if(val>=20)return"#E67E22";if(val>=12)return"#F5A623";return"#27AE60"; }
+  if (dim==='access') { if(val>=55)return"#C0392B";if(val>=40)return"#E67E22";if(val>=25)return"#F5A623";return"#27AE60"; }
+  if(val>=38)return"#C0392B";if(val>=28)return"#E67E22";if(val>=20)return"#F5A623";return"#27AE60";
+}
+
+function ratingFor(val, dim) {
+  const c = getColor(val, dim);
+  if(c==="#C0392B")return{label:"High barrier",cls:"rating-high"};
+  if(c==="#E67E22")return{label:"Moderate barrier",cls:"rating-mid"};
+  if(c==="#F5A623")return{label:"Some barrier",cls:"rating-mid"};
+  return{label:"Low barrier",cls:"rating-low"};
+}
+
+function idLabel(s){if(s>=90)return"Strict photo ID required with no alternatives. If you don't have it, you vote on a provisional ballot that may not count.";if(s>=65)return"Strict ID required but photo isn't mandatory. Without it, you'll vote provisionally.";if(s>=35)return"Photo ID is asked for, but you can sign an affidavit or use another form of ID if you don't have it.";if(s>=20)return"Some ID is requested, but there are easy alternatives if you don't have documents.";return"No ID required. You just sign the poll book or an affidavit to confirm you are who you say you are.";}
+function waitLabel(m){if(m>=30)return`An average wait of ${m} minutes — one of the longest in the country. This disproportionately affects people who can't leave work or find childcare.`;if(m>=20)return`An average wait of ${m} minutes — above the national average. Long lines can discourage people from voting.`;if(m>=12)return`An average wait of about ${m} minutes — close to the national average.`;return`An average wait of just ${m} minutes — among the shortest in the country.`;}
+function internetLabel(p){if(p>=8)return`${p}% of households have no home internet. That's significantly above average, and it limits access to online voter registration, mail ballot requests, and election information.`;if(p>=5)return`${p}% of households lack home internet — above the national average of ~4.5%. Online registration is harder to reach for those residents.`;return`${p}% of households lack home internet — near or below the national average.`;}
+function languageLabel(p){if(p>=12)return`${p}% of residents speak English less than "very well." Without multilingual ballots and poll workers, these voters face real difficulty navigating the voting process.`;if(p>=6)return`${p}% of residents speak English less than "very well" — above average. Language access at polls can be inconsistent.`;return`${p}% of residents speak English less than "very well" — a relatively low language barrier.`;}
+function accessLabel(s){if(s>=55)return"Significantly fewer polling places relative to population. Voters may need to travel farther or wait longer to find an open location.";if(s>=40)return"Below-average polling place availability. Some voters face longer distances or reduced hours.";if(s>=25)return"Polling place availability is around average for the country.";return"Good availability of polling places relative to the population.";}
+
+function verdictText(name, d) {
+  const barriers=[];
+  if(d.id>=65)barriers.push("strict ID requirements");
+  if(d.waittime>=25)barriers.push("long wait times");
+  if(d.internet>=6)barriers.push("limited internet access");
+  if(d.language>=8)barriers.push("significant language barriers");
+  if(d.access>=50)barriers.push("fewer polling places");
+  if(d.composite>=38){
+    if(barriers.length>0)return`${name} has more barriers to voting than most states, driven by ${barriers.slice(0,-1).join(", ")}${barriers.length>1?" and ":""}${barriers[barriers.length-1]}.`;
+    return`${name} has more barriers to voting than most states across multiple dimensions.`;
+  }
+  if(d.composite>=25){
+    if(barriers.length>0)return`${name} has a mixed picture — some barriers like ${barriers[0]}${barriers.length>1?" and "+barriers[1]:""}, but not the most restrictive state overall.`;
+    return`${name} sits in the middle — not the easiest or hardest state to vote in.`;
+  }
+  return`${name} has relatively few structural barriers to voting compared to most states.`;
+}
+
+function verdictLabel(c){
+  if(c>=38)return{text:"Harder to vote here",cls:"verdict-hard"};
+  if(c>=22)return{text:"Some barriers present",cls:"verdict-mid"};
+  return{text:"Easier to vote here",cls:"verdict-easy"};
+}
+
+function buildActions(name) {
+  const a = stateActions[name];
+  if (!a) return '<p style="color:rgba(240,230,211,0.5);font-size:0.85rem">Action data not available for this state.</p>';
+  return `<div class="action-grid">
+    <div class="action-item">
+      <div class="action-label">Same-Day Registration</div>
+      <div class="action-status ${a.sdr?'action-yes':'action-no'}">${a.sdr?'Available':'Not available'}</div>
+      <div class="action-desc">${a.sdr?'You can register and vote on the same day — even on Election Day itself. Bring proof of address.':'You must register before Election Day. Check the deadline below and register now if you haven\'t.'}</div>
+    </div>
+    <div class="action-item">
+      <div class="action-label">Online Registration</div>
+      <div class="action-status ${a.online?'action-yes':'action-no'}">${a.online?'Available':'Not available'}</div>
+      <div class="action-desc">${a.online?'You can register online — fastest and easiest option.':'This state does not offer online registration. You\'ll need to register by mail or in person.'}</div>
+      ${a.online?`<a class="action-link" href="${a.regUrl}" target="_blank">Register online now →</a>`:''}
+    </div>
+    <div class="action-item">
+      <div class="action-label">Vote by Mail</div>
+      <div class="action-status ${a.mail?'action-yes':'action-no'}">${a.mail?'Available':'Limited or not available'}</div>
+      <div class="action-desc">${a.mail?'You can request a mail ballot and vote from home. Request it early — deadlines vary.':'This state has limited or no no-excuse mail voting. You\'ll likely need to vote in person.'}</div>
+    </div>
+    <div class="action-item">
+      <div class="action-label">Registration Deadline</div>
+      <div class="action-status action-maybe" style="font-size:1rem">${a.deadline}</div>
+      <div class="action-desc">Don't wait. Register now or check that your existing registration is still active.</div>
+      <a class="action-link" href="${a.regUrl}" target="_blank">Go to ${name} voter registration →</a>
+    </div>
+    <div class="action-item">
+      <div class="action-label">Check Your Registration</div>
+      <div class="action-status action-yes" style="font-size:1rem">Do this now</div>
+      <div class="action-desc">Voter rolls are being purged more frequently. Confirm you're still registered before Election Day.</div>
+      <a class="action-link" href="https://www.vote.org/am-i-registered-to-vote/" target="_blank">Check registration at vote.org →</a>
+    </div>
+    <div class="action-item">
+      <div class="action-label">Find Your Polling Place</div>
+      <div class="action-status action-yes" style="font-size:1rem">Look it up</div>
+      <div class="action-desc">Polling places change. Don't assume yours is the same as last election — look it up before you go.</div>
+      <a class="action-link" href="https://www.vote.org/polling-place-locator/" target="_blank">Find my polling place →</a>
+    </div>
+  </div>`;
+}
+
+function buildDocs(name, d) {
+  const needsStrictId = d.id >= 65;
+  const needsAnyId = d.id >= 20;
+  return `<div class="docs-section">
+    <h4>Documents you may need to vote in ${name}</h4>
+    ${needsStrictId ? `<div class="doc-item"><div class="doc-icon">⚠️</div><div class="doc-text"><strong>Strict ID required</strong>This state requires photo ID with no easy alternatives. If you don't have an accepted ID, your ballot may be provisional and could be rejected.</div></div>` : ''}
+    ${needsAnyId && !needsStrictId ? `<div class="doc-item"><div class="doc-icon">ℹ️</div><div class="doc-text"><strong>ID requested but alternatives exist</strong>This state asks for ID, but if you don't have it you can usually sign an affidavit or use another document. Ask a poll worker.</div></div>` : ''}
+    ${!needsAnyId ? `<div class="doc-item"><div class="doc-icon">✅</div><div class="doc-text"><strong>No ID required to vote</strong>You just need to confirm your identity by signing the poll book. No documents needed.</div></div>` : ''}
+  </div>
+  <div class="docs-section">
+    <h4>What counts as proof of citizenship (for the SAVE Act, if it passes)</h4>
+    <div class="doc-item"><div class="doc-icon">🛂</div><div class="doc-text"><strong>US Passport or Passport Card</strong>The most widely accepted document. If you don't have one, you can apply at <a href="https://travel.state.gov/content/travel/en/passports.html" target="_blank">travel.state.gov</a>. Costs ~$130–$165. Takes 6–8 weeks (rush available).</div></div>
+    <div class="doc-item"><div class="doc-icon">📄</div><div class="doc-text"><strong>Birth Certificate</strong>Accepted proof of citizenship. You can request yours from your state's vital records office. Most states charge $10–$30. Find yours at <a href="https://www.cdc.gov/nchs/w2w/" target="_blank">cdc.gov/nchs/w2w</a>.</div></div>
+    <div class="doc-item"><div class="doc-icon">🪪</div><div class="doc-text"><strong>REAL ID with citizenship indicator</strong>A REAL ID-compliant driver's license that indicates citizenship. Not all states issue these — check with your DMV.</div></div>
+    <div class="doc-item"><div class="doc-icon">📋</div><div class="doc-text"><strong>Naturalization Certificate</strong>For naturalized citizens. If yours is lost or damaged, you can apply for a replacement at <a href="https://www.uscis.gov" target="_blank">uscis.gov</a>.</div></div>
+  </div>
+  <div class="docs-section">
+    <h4>Can't afford or access these documents? Free help is available.</h4>
+    <div class="doc-item"><div class="doc-icon">🤝</div><div class="doc-text"><strong>VoteRiders</strong>Helps people get the ID they need to vote — completely free. They'll help with the process, paperwork, and sometimes costs. <a href="https://www.voteriders.org/get-help/" target="_blank">voteriders.org/get-help →</a></div></div>
+    <div class="doc-item"><div class="doc-icon">💳</div><div class="doc-text"><strong>Free State ID</strong>Many states offer free voter IDs for people who need one. Check with your state DMV or ask VoteRiders to help you navigate the process.</div></div>
+  </div>`;
+}
+
+function switchTab(tabName, btn) {
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+tabName).classList.add('active');
+}
+
+function openPanel(name) {
+  const d = stateData[name];
+  if (!d) return;
+  currentState = name;
+
+  document.getElementById('p-name').textContent = name.toUpperCase();
+  const v = verdictLabel(d.composite);
+  const vEl = document.getElementById('p-verdict');
+  vEl.textContent = v.text;
+  vEl.className = 'panel-verdict '+v.cls;
+  document.getElementById('p-summary').textContent = verdictText(name, d);
+
+  const factors = [
+    {name:"ID Requirement",  val:d.id,       dim:'id',       desc:idLabel(d.id)},
+    {name:"Wait Times",      val:d.waittime,  dim:'waittime', desc:waitLabel(d.waittime)},
+    {name:"Internet Access", val:d.internet,  dim:'internet', desc:internetLabel(d.internet)},
+    {name:"Language Barrier",val:d.language,  dim:'language', desc:languageLabel(d.language)},
+    {name:"Polling Access",  val:d.access,    dim:'access',   desc:accessLabel(d.access)},
+  ];
+  document.getElementById('p-factors').innerHTML = factors.map(f=>{
+    const r=ratingFor(f.val,f.dim);
+    return`<div class="factor"><div class="factor-name">${f.name}</div><div class="factor-rating ${r.cls}">${r.label}</div><div class="factor-desc">${f.desc}</div></div>`;
+  }).join('');
+
+  document.getElementById('p-actions').innerHTML = buildActions(name);
+  document.getElementById('p-docs').innerHTML = buildDocs(name, d);
+
+  // reset to first tab
+  document.querySelectorAll('.ptab').forEach((t,i)=>{t.classList.toggle('active',i===0)});
+  document.querySelectorAll('.tab-content').forEach((t,i)=>{t.classList.toggle('active',i===0)});
+
+  document.getElementById('state-panel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('state-panel').classList.remove('open');
+  document.querySelectorAll('path.state').forEach(p=>p.classList.remove('selected'));
+  currentState = null;
+}
+
+function shareState() {
+  const text = currentState
+    ? `Voting access in ${currentState} — see what the barriers are and what you can do about it: ${window.location.href}`
+    : window.location.href;
+  if (navigator.share) {
+    navigator.share({title:`Voting Friction Index — ${currentState}`, url:window.location.href});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>{
+      const t=document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),2500);
+    });
+  }
+}
+
+function drawMap() {
+  const container = document.getElementById('map-container');
+  container.innerHTML='';
+  const w = container.clientWidth||700;
+  const h = Math.round(w*0.6);
+  const svg = d3.select('#map-container').append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const projection = d3.geoAlbersUsa().scale(w*1.25).translate([w/2,h/2]);
+  const path = d3.geoPath(projection);
+  const features = topojson.feature(usData,usData.objects.states).features;
+
+  const paths = svg.selectAll('path.state').data(features).join('path')
+    .attr('class','state')
+    .attr('d',path)
+    .attr('fill',d=>{
+      const name=fips[+d.id];
+      if(!name||!stateData[name])return'#333';
+      return getColor(stateData[name][currentDim],currentDim);
+    })
+    .on('click',function(event,d){
+      const name=fips[+d.id];
+      if(!name)return;
+      document.querySelectorAll('path.state').forEach(p=>p.classList.remove('selected'));
+      this.classList.add('selected');
+      openPanel(name);
+    });
+
+  paths.each(function(d,i){
+    const el=this;
+    setTimeout(()=>el.classList.add('loaded'),i*8);
+  });
+}
+
+d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(us=>{
+  usData=us;
+  drawMap();
+  document.querySelectorAll('.dim-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.dim-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      currentDim=this.dataset.dim;
+      drawMap();
+    });
+  });
+  window.addEventListener('resize',drawMap);
+});
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel()});
+</script>
+</body>
+</html>
