@@ -1,6 +1,6 @@
 # Voting Friction Index
 
-🗺️ [Live map](https://spurthinru-alt.github.io/votemap)
+🗺️ [Live map](https://spurthinru-alt.github.io/canivote)
 
 I'm a student and I built this after the SAVE Act started moving through Congress. The bill requires Americans to show documentary proof of citizenship, like a passport or birth certificate, just to register to vote. Over 21 million Americans don't have easy access to those documents. It passed the House in 2025 and the Senate is still debating it.
 
